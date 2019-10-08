@@ -27,15 +27,15 @@ The goal of this analysis is to try to find patterns in the raw data, and use th
 
 ## Data
 
-Dataset used for this project is [New York City Airbnb Open Data](https://www.kaggle.com/dgomonov/new-york-city-airbnb-open-data), and it contains various information about all listings in the so-called Big Apple from 2019.
-
-
+Dataset used for this project is [New York City Airbnb Open Data](https://www.kaggle.com/dgomonov/new-york-city-airbnb-open-data), and it contains various information about all listings in the Big Apple from 2019.
 ```{r}
 suppressPackageStartupMessages(library(tidyverse))
+library(ggthemes)
+theme_set(theme_minimal())
+suppressPackageStartupMessages(library(lubridate))
 nycdata <- read.csv('../data/AB_NYC_2019.csv')
 head(nycdata, 5)                                    #show first five listings
 ```
-
 </br>
 
 ## The city
@@ -43,15 +43,100 @@ head(nycdata, 5)                                    #show first five listings
 To help us truly understand this data, it is important to get to know the city of New York first.
 
 Located on the far east coast of the United States, New York is its most pupulous city with over 8 million people.
-It consists of five bouroughs - **Brooklyn**, **Queens**, **Manhattan**, **Bronx** and the **Staten Island** which has not been included in the dataset, so we will concentrate on the first 4.
+It consists of five bouroughs - **Brooklyn**, **Queens**, **Manhattan**, **Bronx** and the **Staten Island**.
 
 It also has two airports, **JFK** and **LaGuardia**, which are the sixth and the twentieth busiest airports in the US respectively, handling around 100 million passengers every year, and they are both located in Queens.
 
 </br>
 <center>
-![Map of NYC](../data/New_York_City_District_Map.png){#id .class width=600 height=600p}
+![Map of NYC](../data/New_York_City_District_Map.jpg){#id .class width=600 height=600p}
 </center>
+</br>
 
-watf
+## Data Wrangling
+
+First let's look at all comunn types in the data:
+
+```{r}
+sapply(nycdata, class)
+
+```
+
+It seems that column last_review is a factor while it represents a date, so we should convert it to date.
+```{r}
+nycdata <- nycdata %>%
+  mutate(last_review = ymd(last_review))
+```
+
+### Missing Values
+
+
+Let's find the names of all the columns that contain the missing values
+
+```{r}
+colnames(nycdata)[colSums(is.na(nycdata)) > 0]
+```
+
+It would appear that missing values in these two columns appear together, so let's confirm that hypothesis.
+```{r}
+nycdata %>%
+  filter(is.na(last_review) & !is.na(reviews_per_month))
+```
+
+Since there are 0 rows that only have one missing value, our hypothesis has been confirmed. </br>
+From the looks of things, the rows that contain missing values in these columns are listings that have not had a single tenant so far. </br>
+That's why we should set missing values of reviews_per_month to 0 to keep it consistent with othere values in this column.
+```{r}
+nycdata <- nycdata %>%
+  mutate(reviews_per_month = ifelse(is.na(reviews_per_month), 0, reviews_per_month))
+```
+</br>
+
+There is a somewhat weird pattern in the distribution of values in the column availability_365 which represents the number of days in a year that the listing is available for booking:
+
+```{r}
+ggplot(data = nycdata, mapping = aes(x = availability_365)) +
+  geom_histogram(binwidth = 20)
+```
+
+
+It appears that a vast majority of listings are not available for booking at all during the year. Since the most of these listings have been booked mulpitle times this is probably a data error. </br>
+The best way to deal with this is to set these values to NA, so that we can get a more accurate representation of listing availability.
+
+```{r}
+nycdata <- nycdata %>%
+  mutate(availability_365 = ifelse(availability_365 <= 0, NA, availability_365 ))
+
+
+ggplot(data = nycdata, mapping = aes(x = availability_365)) +
+  geom_histogram(binwidth = 20, na.rm = TRUE)
+
+```
+Now we can indeed see that most listings are available throughout the whole year.
+</br>
+
+
+## The Locations
+
+Location is the most important attribute when it comes to any type of real-estate, so let's see where are these listings located in New York.
+
+
+```{r}
+nycdata %>%
+  group_by(neighbourhood_group) %>%
+  summarise(perc = (n()/ nrow(nycdata)*100), n = n()) %>%
+  ggplot(mapping = aes(x = '', y = n, fill = neighbourhood_group)) +
+  geom_bar(stat="identity") + 
+  coord_polar(theta = "y", start=0, direction = -1) + 
+  labs(title = 'Number of listings per boroughs')
+```
+
+It is very interesting that Manhattan in spite of being by far the smallest borough(only 59 km²) has the most listings, while Queens which is almost 7 times bigger and where both airports are located has significanlty less. </br>
+
+
+Let's dive deeper, and try to see why Manhattan is so popular among the user of this app.
+
+
+
 
 
