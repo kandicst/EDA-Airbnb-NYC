@@ -1,23 +1,57 @@
 ---
-title: "R Notebook"
+title: "NYC Airbnb Data"
 output: html_notebook
 ---
 
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+</br>
 
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+## Introduction
+
+
+Airbnb is an online marketplace for people who are looking for a place to stay, as well as to those who 
+fdssfddsfsdf
+sdf
+d
+fsdf
+
+dsf
+fds
+
+</br>
+
+## Goal
+
+The goal of this analysis is to try to find patterns in the raw data, and use them to learn something useful about apartment-hunting, and New York in general.
+
+</br>
+
+## Data
+
+Dataset used for this project is [New York City Airbnb Open Data](https://www.kaggle.com/dgomonov/new-york-city-airbnb-open-data), and it contains various information about all listings in the so-called Big Apple from 2019.
+
 
 ```{r}
-plot(cars)
+suppressPackageStartupMessages(library(tidyverse))
+nycdata <- read.csv('../data/AB_NYC_2019.csv')
+head(nycdata, 5)                                    #show first five listings
 ```
 
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+</br>
 
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+## The city
 
-The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+To help us truly understand this data, it is important to get to know the city of New York first.
 
-```{r}
-1+1
-```
+Located on the far east coast of the United States, New York is its most pupulous city with over 8 million people.
+It consists of five bouroughs - **Brooklyn**, **Queens**, **Manhattan**, **Bronx** and the **Staten Island** which has not been included in the dataset, so we will concentrate on the first 4.
+
+It also has two airports, **JFK** and **LaGuardia**, which are the sixth and the twentieth busiest airports in the US respectively, handling around 100 million passengers every year, and they are both located in Queens.
+
+</br>
+<center>
+![Map of NYC](../data/New_York_City_District_Map.png){#id .class width=600 height=600p}
+</center>
+
+watf
+
 
